@@ -1,0 +1,148 @@
+{{ 'section-products-grid.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'products-grid.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign add_on_product = section.settings.add_on_product
+  assign add_on_variant = add_on_product.selected_or_first_available_variant
+  unless add_on_product != blank and add_on_variant.available
+    assign add_on_variant = blank
+  endunless
+-%}
+
+<products-grid
+  class="products-grid page-width"
+  data-add-on-variant-id="{{ add_on_variant.id }}"
+>
+  {%- if section.settings.heading != blank -%}
+    <h2 class="products-grid__heading">{{ section.settings.heading | escape }}</h2>
+  {%- endif -%}
+
+  <div class="products-grid__items">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign grid_product = block.settings.product
+        assign featured_image = grid_product.featured_image
+        assign featured_image_alt = featured_image.alt | default: grid_product.title
+      -%}
+
+      <div class="products-grid__item" {{ block.shopify_attributes }}>
+        {%- if grid_product != blank -%}
+          {%- if featured_image != blank -%}
+            {{
+              featured_image
+              | image_url: width: 1000
+              | image_tag:
+                class: 'products-grid__image',
+                loading: 'lazy',
+                widths: '240, 360, 480, 720, 1000',
+                sizes: '(min-width: 990px) 33vw, 50vw',
+                alt: featured_image_alt
+            }}
+          {%- else -%}
+            {{ 'product-' | append: forloop.index | placeholder_svg_tag: 'products-grid__placeholder placeholder-svg' }}
+          {%- endif -%}
+
+          <button
+            type="button"
+            class="products-grid__hotspot"
+            style="--hotspot-x: {{ block.settings.pointer_horizontal_position }}%; --hotspot-y: {{ block.settings.pointer_vertical_position }}%;"
+            aria-label="{{ 'products.product.choose_options' | t }}: {{ grid_product.title | escape }}"
+            aria-haspopup="dialog"
+            aria-controls="ProductsGridDialog-{{ section.id }}"
+            data-product-url="{{ grid_product.url }}"
+          >
+            {% render 'gift-guide-icons', icon: 'plus' %}
+          </button>
+        {%- elsif request.design_mode -%}
+          {{ 'product-' | append: forloop.index | placeholder_svg_tag: 'products-grid__placeholder placeholder-svg' }}
+        {%- endif -%}
+      </div>
+    {%- endfor -%}
+  </div>
+
+  <dialog id="ProductsGridDialog-{{ section.id }}" class="products-grid__dialog">
+    <div class="products-grid__dialog-content">
+      <button
+        type="button"
+        class="products-grid__close"
+        aria-label="{{ 'accessibility.close' | t }}"
+      >
+        {% render 'gift-guide-icons', icon: 'close' %}
+      </button>
+      <div class="products-grid__dialog-body">
+        {%- if product != blank -%}
+          {% render 'product-quick-view', product: product, section_id: section.id %}
+        {%- endif -%}
+      </div>
+    </div>
+  </dialog>
+</products-grid>
+
+{% schema %}
+{
+  "name": "Products grid",
+  "tag": "section",
+  "class": "products-grid-section",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Tisso vision in the wild"
+    },
+    {
+      "type": "product",
+      "id": "add_on_product",
+      "label": "Add-on product",
+      "info": "This product is automatically added when a customer selects Black and Medium."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "range",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "id": "pointer_horizontal_position",
+          "label": "Pointer horizontal position",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "id": "pointer_vertical_position",
+          "label": "Pointer vertical position",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Products grid",
+      "blocks": [
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" }
+      ]
+    }
+  ]
+}
+{% endschema %}

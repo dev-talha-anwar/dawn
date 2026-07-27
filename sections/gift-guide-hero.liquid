@@ -1,0 +1,438 @@
+{{ 'section-gift-guide-hero.css' | asset_url | stylesheet_tag }}
+
+{% liquid
+  assign header_block = null
+  assign footer_block = null
+  assign is_design_mode = request.design_mode
+
+  for block in section.blocks
+    case block.type
+      when 'header'
+        assign header_block = block
+      when 'footer'
+        assign footer_block = block
+    endcase
+  endfor
+%}
+
+{% capture default_background_image %}
+  <img
+    src="data:image/svg+xml;base64, {{ 'lifestyle-2' | placeholder_svg_tag: 'gift-guide-hero__image' | base64_encode }}"
+    class="gift-guide-hero__image"
+    alt="fall back image"
+    width="1200"
+    height="350"
+  >
+{% endcapture %}
+
+<div
+  id="gift-guide-hero-{{ section.id }}"
+  class="gift-guide-hero"
+  {% if section.settings.heading != blank %}
+    aria-labelledby="gift-guide-label-{{ section.id }}"
+  {% endif %}
+  style="
+    --background: {{ section.settings.hero_background | default: '#ffffff' }};
+    --text-color: {{ section.settings.text_color | default: '#000000' }};
+    --button-background: {{ section.settings.button_background | default: '#000000' }};
+    --button-color: {{ section.settings.button_color | default: '#ffffff' }};
+    --button-hover-background: {{ section.settings.button_hover_background | default: '#fff544' }};
+    --button-hover-color: {{ section.settings.button_hover_color | default: '#000000' }};
+    --first-image-height: {{ section.settings.first_image_height | default: 350 }}px;
+    --second-image-height: {{ section.settings.second_image_height | default: 400 }}px;
+    --max-width: {% if section.settings.full_width %}100%{% else %}{{ section.settings.max_width }}px{% endif %};
+  "
+>
+  {% if header_block %}
+    <div
+      class="gift-guide-hero__header"
+      style="
+        --background: {{ header_block.settings.background_color | default: '#f5f5f5' }};
+        --text-color: {{ header_block.settings.text_color | default: '#000000' }};
+        --button-background: {{ header_block.settings.button_background | default: '#fff544' }};
+        --button-color: {{ header_block.settings.button_color | default: '#000000' }};
+        --button-hover-background: {{ header_block.settings.button_hover_background | default: '#000000' }};
+        --button-hover-color: {{ header_block.settings.button_hover_color | default: '#ffffff' }};
+      "
+    >
+      <div class="gift-guide-hero__header-bar">
+        <button
+          type="button"
+          class="gift-guide-hero__header-toggle"
+          aria-label="Open menu"
+          aria-controls="gift-guide-hero-menu-{{ section.id }}"
+          aria-expanded="false"
+        >
+          <span class="gift-guide-hero__menu-icon gift-guide-hero__menu-icon--open" aria-hidden="true">
+            {% render 'gift-guide-icons', icon: 'menu' %}
+          </span>
+
+          <span class="gift-guide-hero__menu-icon gift-guide-hero__menu-icon--close" aria-hidden="true">
+            {% render 'gift-guide-icons', icon: 'close' %}
+          </span>
+        </button>
+
+        {% if header_block.settings.title != blank %}
+          <span class="gift-guide-hero__header-title">
+            {{ header_block.settings.title | escape }}
+          </span>
+        {% endif %}
+      </div>
+
+      <div
+        id="gift-guide-hero-menu-{{ section.id }}"
+        class="gift-guide-hero__header-content"
+      >
+        {% if header_block.settings.text != blank %}
+          <span class="gift-guide-hero__header-text">
+            {{ header_block.settings.text | escape | newline_to_br }}
+          </span>
+        {% endif %}
+
+        {% if header_block.settings.button_label != blank %}
+          <a class="gift-guide-hero__button" href="{{ header_block.settings.button_link | default: '#' }}">
+            <span>{{ header_block.settings.button_label | escape }}</span>
+            <span class="gift-guide-hero__button-arrow" aria-hidden="true">
+              {% render 'gift-guide-icons', icon: 'arrow-right' %}
+            </span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="gift-guide-hero__main">
+    {% if section.settings.first_image != blank %}
+      <div class="gift-guide-hero__media gift-guide-hero__media--first">
+        {{
+          section.settings.first_image
+          | image_url: width: 2400
+          | image_tag:
+            widths: '550, 750, 1100, 1500, 1800, 2000, 2400',
+            sizes: '100vw',
+            loading: 'eager',
+            fetchpriority: 'high',
+            class: 'gift-guide-hero__image'
+        }}
+      </div>
+    {% elsif is_design_mode %}
+      <div class="gift-guide-hero__media gift-guide-hero__media--first">
+        {{ default_background_image }}
+      </div>
+    {% endif %}
+
+    <div class="gift-guide-hero__lower">
+      <div class="gift-guide-hero__content">
+        {% if section.settings.heading != blank %}
+          <h2 id="gift-guide-label-{{ section.id }}" class="gift-guide-hero__heading">
+            {{ section.settings.heading | escape }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.text != blank %}
+          <p class="gift-guide-hero__text">
+            {{ section.settings.text | escape | newline_to_br }}
+          </p>
+        {% endif %}
+
+        {% if section.settings.button_label != blank %}
+          <a class="gift-guide-hero__button" href="{{ section.settings.button_link | default: '#' }}">
+            <span>{{ section.settings.button_label | escape }}</span>
+            <span class="gift-guide-hero__button-arrow" aria-hidden="true">
+              {% render 'gift-guide-icons', icon: 'arrow-right' %}
+            </span>
+          </a>
+        {% endif %}
+      </div>
+
+      {% if section.settings.second_image != blank %}
+        <div class="gift-guide-hero__media gift-guide-hero__media--second">
+          {{
+            section.settings.second_image
+            | image_url: width: 1800
+            | image_tag:
+              widths: '550, 750, 990, 1200, 1500, 1800',
+              sizes: '(min-width: 750px) 58vw, 100vw',
+              loading: 'lazy',
+              class: 'gift-guide-hero__image'
+          }}
+        </div>
+      {% elsif is_design_mode %}
+        <div class="gift-guide-hero__media gift-guide-hero__media--second">
+          {{ default_background_image }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if footer_block and footer_block.settings.footer_text != blank %}
+    <div
+      class="gift-guide-hero__footer"
+      style="
+        --background: {{ footer_block.settings.background_color | default: '#f5f5f5' }};
+        --text-color: {{ footer_block.settings.text_color | default: '#000000' }};
+      "
+    >
+      <span class="gift-guide-hero__footer-text">
+        {{ footer_block.settings.footer_text | escape }}
+      </span>
+    </div>
+  {% endif %}
+</div>
+
+{% if header_block %}
+  <script>
+    (() => {
+      const section = document.getElementById('gift-guide-hero-{{ section.id }}');
+      if (!section) return;
+
+      const header = section.querySelector('.gift-guide-hero__header');
+      const toggle = section.querySelector('.gift-guide-hero__header-toggle');
+      if (!header || !toggle) return;
+
+      toggle.addEventListener('click', () => {
+        const isOpen = header.classList.toggle('gift-guide-hero__header--open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        toggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+      });
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Gift Guide Hero",
+  "tag": "section",
+  "class": "gift-guide-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The Gift Guide"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Description",
+      "default": "Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect presents to delight your loved ones this holiday season."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "SHOP NOW"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "first_image",
+      "label": "First image"
+    },
+    {
+      "type": "image_picker",
+      "id": "second_image",
+      "label": "Second image"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 1000,
+      "max": 2000,
+      "step": 10,
+      "unit": "px",
+      "label": "Max width",
+      "default": 1200,
+      "visible_if": "{{ section.settings.full_width == false }}"
+    },
+    {
+      "type": "range",
+      "id": "first_image_height",
+      "min": 200,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "First image height",
+      "default": 350
+    },
+    {
+      "type": "range",
+      "id": "second_image_height",
+      "min": 200,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Second image height",
+      "default": 400
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "hero_background",
+      "label": "Hero background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background",
+      "label": "Button hover background",
+      "default": "#fff544"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover text",
+      "default": "#000000"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "header",
+      "name": "Header",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "title",
+          "default": "TISSO VISION"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Find the ideal gift for your loved ones."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "CHOOSE GIFT"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": "Background",
+          "default": "#f5f5f5"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "button_background",
+          "label": "Button background",
+          "default": "#fff544"
+        },
+        {
+          "type": "color",
+          "id": "button_color",
+          "label": "Button text",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "button_hover_background",
+          "label": "Button hover background",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "button_hover_color",
+          "label": "Button hover text",
+          "default": "#ffffff"
+        }
+      ]
+    },
+    {
+      "type": "footer",
+      "name": "Footer",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "footer_text",
+          "label": "Text",
+          "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": "Background",
+          "default": "#f5f5f5"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text",
+          "default": "#000000"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gift Guide Hero"
+    }
+  ]
+}
+{% endschema %}

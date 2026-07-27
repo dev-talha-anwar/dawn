@@ -1,0 +1,31 @@
+{% liquid
+  assign icon = icon | default: ''
+%}
+
+{% case icon %}
+  {% when 'menu' %}
+    <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1 6H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M1 1H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M1 11H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+  {% when 'close' %}
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1 13.9994L13.7279 1.27147" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M1 1L13.7279 13.7279" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+  {% when 'arrow-right' %}
+    <svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0.75 4.77295L8.69476e-08 4.77295L-8.69476e-08 6.27295L0.75 6.27295L0.75 5.52295L0.75 4.77295ZM29.5702 6.05328C29.8631 5.76039 29.8631 5.28551 29.5702 4.99262L24.7972 0.21965C24.5043 -0.0732435 24.0294 -0.0732435 23.7366 0.21965C23.4437 0.512543 23.4437 0.987417 23.7366 1.28031L27.9792 5.52295L23.7366 9.76559C23.4437 10.0585 23.4437 10.5334 23.7366 10.8263C24.0294 11.1191 24.5043 11.1191 24.7972 10.8263L29.5702 6.05328ZM0.75 5.52295L0.75 6.27295L29.0399 6.27295L29.0399 5.52295L29.0399 4.77295L0.75 4.77295L0.75 5.52295Z" fill="currentColor"/>
+    </svg>
+  {% when 'plus' %}
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M8 1v14M1 8h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    </svg>
+  {% when 'spinner' %}
+    <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.542 1.487A21.507 21.507 0 00.5 22c0 11.874 9.626 21.5 21.5 21.5 9.847 0 18.364-6.675 20.809-16.072a1.5 1.5 0 00-2.904-.756C37.803 34.755 30.473 40.5 22 40.5 11.783 40.5 3.5 32.217 3.5 22c0-8.137 5.3-15.247 12.942-17.65a1.5 1.5 0 10-.9-2.863z"></path>
+    </svg>
+{% endcase %}

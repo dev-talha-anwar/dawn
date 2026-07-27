@@ -1,0 +1,83 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign current_image = current_variant.featured_image | default: product.featured_image
+  assign form_id = 'ProductQuickViewForm-' | append: section_id | append: '-' | append: product.id
+-%}
+
+<div class="products-grid__product">
+  <div class="products-grid__summary">
+    <div>
+      {%- if current_image != blank -%}
+        <img
+          class="products-grid__modal-image"
+          src="{{ current_image | image_url: width: 480 }}"
+          alt="{{ current_image.alt | default: product.title | escape }}"
+          width="480"
+          height="{{ 480 | divided_by: current_image.aspect_ratio | round }}"
+        >
+      {%- endif -%}
+    </div>
+
+    <div>
+      <h3 class="products-grid__title">{{ product.title | escape }}</h3>
+      <p class="products-grid__price">{{ current_variant.price | money }}</p>
+
+      {%- if product.description != blank -%}
+        <div class="products-grid__description">
+          {{ product.description | strip_html | truncatewords: 22 }}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {% form 'product', product, id: form_id, class: 'products-grid__form' %}
+      {%- unless product.has_only_default_variant -%}
+        {%- for option in product.options_with_values -%}
+          {%- assign option_name = option.name | downcase -%}
+          <fieldset class="products-grid__option">
+            <legend>{{ option.name | escape }}</legend>
+
+            {%- if option_name == 'color' or option_name == 'colour' -%}
+              <select class="visually-hidden" data-option-select data-option-name="{{ option.name | escape }}">
+                {%- for value in option.values -%}
+                  <option value="{{ value.id }}"{% if option.selected_value == value %} selected{% endif %}>
+                    {{ value }}
+                  </option>
+                {%- endfor -%}
+              </select>
+              <div class="products-grid__swatches">
+                {%- for value in option.values -%}
+                  <button
+                    type="button"
+                    class="products-grid__swatch{% if option.selected_value == value %} is-selected{% endif %}"
+                    style="--swatch-color: {% if value.swatch.color %}{{ value.swatch.color }}{% else %}{{ value | downcase | escape }}{% endif %};"
+                    data-option-value="{{ value.id }}"
+                    aria-pressed="{% if option.selected_value == value %}true{% else %}false{% endif %}"
+                  >
+                    <span>{{ value }}</span>
+                  </button>
+                {%- endfor -%}
+              </div>
+            {%- else -%}
+              <div class="products-grid__select-wrap">
+                <select class="products-grid__select" data-option-select data-option-name="{{ option.name | escape }}">
+                  {%- for value in option.values -%}
+                    <option value="{{ value.id }}"{% if option.selected_value == value %} selected{% endif %}>
+                      {{ value }}
+                    </option>
+                  {%- endfor -%}
+                </select>
+              </div>
+            {%- endif -%}
+          </fieldset>
+        {%- endfor -%}
+      {%- endunless -%}
+
+      <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+      <button type="submit" class="products-grid__submit"{% unless current_variant.available %} disabled{% endunless %}>
+        <span>{%- if current_variant.available -%}Add to cart{%- else -%}Sold out{%- endif -%}</span>
+        {% render 'gift-guide-icons', icon: 'arrow-right' %}
+      </button>
+      <p class="products-grid__error" role="alert" hidden data-product-error></p>
+  {% endform %}
+</div>
